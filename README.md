@@ -325,11 +325,49 @@ All connection settings live at the top of `vector_nlp_pipeline.py`:
 
 | Problem | Fix |
 |---|---|
-| `ModuleNotFoundError` | Run `pip install <package>` inside your activated venv |
-| `Connection refused` | Docker container not started — run `docker ps` to check |
-| `AuthenticationError` (Anthropic) | Verify `ANTHROPIC_API_KEY` is set correctly |
-| `AuthenticationError` (Pinecone) | Verify `PINECONE_API_KEY` is set correctly |
-| Slow first run | Embedding model is downloading (~90 MB) — wait once, then it's cached |
-| Pinecone index timeout | First-time index creation takes ~30 s — wait for "ready" message |
+| `No module named 'pinecone'` | Run `pip install pinecone` inside your activated venv — each DB needs its own driver installed separately |
+| `No module named 'qdrant_client'` | Run `pip install qdrant-client` — same idea, install the driver for whichever DB you are using |
+| `ModuleNotFoundError` (any DB) | Run `pip install <package>` from the table in Step 3 inside your activated venv |
+| Script error says "Check DB server" | This is a generic message — the real cause is shown on the line above it (e.g. missing module, wrong API key, or server not running) |
+| `Connection refused` | Docker container not started — run `docker ps` to check, then run the matching `docker run` command from Step 6 |
+| `AuthenticationError` (Anthropic) | Verify `ANTHROPIC_API_KEY` is set — see "Verifying environment variables" below |
+| `AuthenticationError` (Pinecone) | Verify `PINECONE_API_KEY` is set — see "Verifying environment variables" below |
+| Slow first run | Embedding model is downloading (~90 MB) — wait once, then it is cached locally |
+| Pinecone index timeout | First-time index creation takes ~30 s — wait for the "ready" message in the output |
 | ChromaDB permission error | Delete the `./chroma_data/` folder and re-run |
-| pgvector `extension not found` | Make sure you used the `pgvector/pgvector:pg16` Docker image |
+| `SyntaxWarning: invalid escape sequence` | Harmless warning from a comment in the docstring — does not affect execution |
+| pgvector `extension not found` | Make sure you used the `pgvector/pgvector:pg16` Docker image, not plain `postgres` |
+
+---
+
+## Verifying environment variables
+
+After setting an API key, always confirm it is visible to Python before running the script.
+
+```powershell
+# Check Anthropic key
+echo $env:ANTHROPIC_API_KEY
+
+# Check Pinecone key
+echo $env:PINECONE_API_KEY
+```
+
+You should see your key printed back. If the output is **blank**, the variable is not set — run the `$env:` command again.
+
+> **Important:** environment variables set with `$env:` only last for the current
+> PowerShell session. Close the window and they are gone. To make them permanent:
+
+```powershell
+# Save permanently to your Windows user profile (run once per key)
+[System.Environment]::SetEnvironmentVariable("ANTHROPIC_API_KEY", "sk-ant-YOUR_KEY_HERE", "User")
+[System.Environment]::SetEnvironmentVariable("PINECONE_API_KEY",  "pcsk_YOUR_KEY_HERE",   "User")
+```
+
+```powershell
+# Verify the permanently saved values
+[System.Environment]::GetEnvironmentVariable("ANTHROPIC_API_KEY", "User")
+[System.Environment]::GetEnvironmentVariable("PINECONE_API_KEY",  "User")
+```
+
+After running the permanent save commands, **open a new PowerShell window** — the
+keys will be available automatically in every session from that point on.

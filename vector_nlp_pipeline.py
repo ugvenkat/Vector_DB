@@ -31,7 +31,7 @@
 │                                                                             │
 │  1) Create & activate virtual environment                                   │
 │       python -m venv venv                                                   │
-│       venv\Scripts\activate                                                 │
+│       venv/Scripts/activate                                                 │
 │                                                                             │
 │  2) Install shared packages (always required)                               │
 │       pip install anthropic sentence-transformers numpy                     │
